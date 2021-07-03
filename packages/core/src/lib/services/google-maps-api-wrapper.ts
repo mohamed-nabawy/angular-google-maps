@@ -14,7 +14,7 @@ export class GoogleMapsAPIWrapper {
 
   constructor(private _loader: MapsAPILoader, private _zone: NgZone) {
     this._map =
-        new Promise<google.maps.Map>((resolve: () => void) => { this._mapResolver = resolve; });
+      new Promise<google.maps.Map>((resolve: () => void) => { this._mapResolver = resolve; });
   }
 
   createMap(el: HTMLElement, mapOptions: google.maps.MapOptions): Promise<void> {
@@ -37,7 +37,7 @@ export class GoogleMapsAPIWrapper {
    * Creates a google map marker with the map context
    */
   createMarker(options: google.maps.MarkerOptions = {}, addToMap: boolean = true):
-      Promise<google.maps.Marker> {
+    Promise<google.maps.Marker> {
     return this._zone.runOutsideAngular(() => {
       return this._map.then((map: google.maps.Map) => {
         if (addToMap) {
@@ -115,7 +115,7 @@ export class GoogleMapsAPIWrapper {
    * Creates a TransitLayer instance for a map
    * @returns a new transit layer object
    */
-  createTransitLayer(): Promise<google.maps.TransitLayer>{
+  createTransitLayer(): Promise<google.maps.TransitLayer> {
     return this._zone.runOutsideAngular(() => {
       return this._map.then((map: google.maps.Map) => {
         const newLayer: google.maps.TransitLayer = new google.maps.TransitLayer();
@@ -126,10 +126,24 @@ export class GoogleMapsAPIWrapper {
   }
 
   /**
+ * Creates a TrafficLayer instance for a map
+ * @returns a new transit layer object
+ */
+  createTrafficLayer(): Promise<google.maps.TrafficLayer> {
+    return this._zone.runOutsideAngular(() => {
+      return this._map.then((map: google.maps.Map) => {
+        const newLayer: google.maps.TrafficLayer = new google.maps.TrafficLayer();
+        newLayer.setMap(map);
+        return newLayer;
+      });
+    });
+  }
+
+  /**
    * Creates a BicyclingLayer instance for a map
    * @returns a new bicycling layer object
    */
-  createBicyclingLayer(): Promise<google.maps.BicyclingLayer>{
+  createBicyclingLayer(): Promise<google.maps.BicyclingLayer> {
     return this._zone.runOutsideAngular(() => {
       return this._map.then((map: google.maps.Map) => {
         const newLayer: google.maps.BicyclingLayer = new google.maps.BicyclingLayer();
@@ -147,7 +161,7 @@ export class GoogleMapsAPIWrapper {
   }
 
   subscribeToMapEvent<N extends keyof google.maps.MapHandlerMap>(eventName: N)
-      : Observable<google.maps.MapHandlerMap[N]> {
+    : Observable<google.maps.MapHandlerMap[N]> {
     return new Observable((observer) => {
       this._map.then(m =>
         m.addListener(eventName, (...evArgs) => this._zone.run(() => observer.next(evArgs)))

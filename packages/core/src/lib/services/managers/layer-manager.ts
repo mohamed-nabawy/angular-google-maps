@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AgmBicyclingLayer } from '../../directives/bicycling-layer';
+import { AgmTrafficLayer } from '../../directives/traffic-layer';
 import { AgmTransitLayer } from '../../directives/transit-layer';
 import { GoogleMapsAPIWrapper } from '../google-maps-api-wrapper';
 
@@ -9,10 +10,10 @@ import { GoogleMapsAPIWrapper } from '../google-maps-api-wrapper';
 
 @Injectable()
 export class LayerManager {
-    private _layers: Map<AgmTransitLayer | AgmBicyclingLayer, Promise<google.maps.TransitLayer | google.maps.BicyclingLayer>> =
-        new Map<AgmTransitLayer | AgmBicyclingLayer, Promise<google.maps.TransitLayer | google.maps.BicyclingLayer>>();
+    private _layers: Map<AgmTransitLayer | AgmBicyclingLayer | AgmTrafficLayer, Promise<google.maps.TransitLayer | google.maps.BicyclingLayer | google.maps.TrafficLayer>> =
+        new Map<AgmTransitLayer | AgmBicyclingLayer | AgmTrafficLayer, Promise<google.maps.TransitLayer | google.maps.BicyclingLayer | google.maps.TrafficLayer>>();
 
-    constructor(private _wrapper: GoogleMapsAPIWrapper) {}
+    constructor(private _wrapper: GoogleMapsAPIWrapper) { }
 
     /**
      * Adds a transit layer to a map instance.
@@ -22,6 +23,17 @@ export class LayerManager {
      */
     addTransitLayer(layer: AgmTransitLayer): void {
         const newLayer = this._wrapper.createTransitLayer();
+        this._layers.set(layer, newLayer);
+    }
+
+    /**
+     * Adds a transit layer to a map instance.
+     * @param layer - a TransitLayer object
+     * @param _options - TransitLayerOptions options
+     * @returns void
+     */
+    addTrafficLayer(layer: AgmTrafficLayer): void {
+        const newLayer = this._wrapper.createTrafficLayer();
         this._layers.set(layer, newLayer);
     }
 
@@ -40,7 +52,7 @@ export class LayerManager {
      * Deletes a map layer
      * @param layer - the layer to delete
      */
-    deleteLayer(layer: AgmTransitLayer | AgmBicyclingLayer): Promise<void> {
+    deleteLayer(layer: AgmTransitLayer | AgmBicyclingLayer | AgmTrafficLayer): Promise<void> {
         return this._layers.get(layer).then(currentLayer => {
             currentLayer.setMap(null);
             this._layers.delete(layer);
